@@ -3,47 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Ultra Scalper Pro</title>
+    <title>AI Ultra Trading Hub</title>
     <style>
-        body { background-color: #080a0c; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; }
-        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-        .card { background: #121519; padding: 12px; border-radius: 12px; border: 1px solid #2b2f36; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .pair { font-size: 11px; color: #848e9c; margin-bottom: 3px; font-weight: bold; }
-        .price { font-size: 18px; font-weight: bold; color: #f0b90b; margin: 2px 0; }
-        .signal { font-size: 14px; font-weight: 800; padding: 8px; border-radius: 6px; margin: 8px 0; text-transform: uppercase; }
-        .strong-buy { background: #02d39a22; color: #02d39a; border: 1px solid #02d39a; }
-        .strong-sell { background: #f6465d22; color: #f6465d; border: 1px solid #f6465d; }
-        .wait { background: #2b2f36; color: #848e9c; }
-        .tp-sl { font-size: 10px; display: flex; justify-content: space-between; border-top: 1px solid #2b2f36; padding-top: 6px; }
-        #tv-chart { height: 430px; border-radius: 12px; overflow: hidden; border: 1px solid #2b2f36; }
-        .accuracy-tag { font-size: 9px; color: #02d39a; background: #02d39a11; padding: 2px 5px; border-radius: 4px; }
+        :root { --bg: #05070a; --card: #12151c; --accent: #f0b90b; --green: #02d39a; --red: #f6465d; }
+        body { background-color: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; padding: 12px; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px; margin-bottom: 15px; border-bottom: 1px solid #2b2f36; }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        .card { background: var(--card); border-radius: 20px; padding: 18px; border: 1px solid #2b2f36; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--accent); }
+        .pair-title { font-size: 14px; color: #848e9c; font-weight: 600; }
+        .price-main { font-size: 28px; font-weight: 800; margin: 8px 0; letter-spacing: -1px; }
+        .signal-badge { display: inline-block; padding: 6px 15px; border-radius: 12px; font-size: 14px; font-weight: bold; margin: 10px 0; text-transform: uppercase; }
+        .buy-style { background: rgba(2, 211, 154, 0.15); color: var(--green); border: 1px solid var(--green); }
+        .sell-style { background: rgba(246, 70, 93, 0.15); color: var(--red); border: 1px solid var(--red); }
+        .wait-style { background: #2b2f36; color: #848e9c; }
+        .stats-row { display: flex; justify-content: space-between; margin-top: 15px; font-size: 13px; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 12px; }
+        .acc-bar { height: 4px; background: #2b2f36; border-radius: 2px; margin-top: 8px; width: 100%; }
+        .acc-fill { height: 100%; background: var(--accent); width: 92%; border-radius: 2px; box-shadow: 0 0 10px var(--accent); }
+        #tv-chart { height: 400px; border-radius: 20px; margin-top: 15px; border: 1px solid #2b2f36; }
     </style>
 </head>
 <body>
 
-    <div style="text-align:center; margin-bottom:12px;">
-        <div style="color:#f0b90b; font-weight:bold; font-size: 16px;">🚀 AI PREDICTOR V5.0</div>
-        <div style="font-size:10px; color:#848e9c;">Timeframe: 5M | Accuracy: 90%+</div>
+    <div class="header">
+        <div style="color: var(--accent); font-weight: 900;">AI PREDICTOR <span style="font-weight: 100;">V6.0</span></div>
+        <div style="font-size: 10px; background: #2b2f36; padding: 4px 10px; border-radius: 20px;">LIVE 5M DATA</div>
     </div>
 
-    <div class="dashboard">
+    <div class="grid">
         <div class="card">
-            <div class="pair">BTC/USDT <span class="accuracy-tag">92%</span></div>
-            <div id="btc-price" class="price">--</div>
-            <div id="btc-sig" class="signal wait">ANALYZING</div>
-            <div class="tp-sl">
-                <span style="color:#f6465d;">SL: <b id="btc-sl">--</b></span>
-                <span style="color:#02d39a;">TP: <b id="btc-tp">--</b></span>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="pair-title">BTC / USDT</span>
+                <span style="font-size: 10px; color: var(--green);">● ACTIVE</span>
             </div>
-        </div>
-
-        <div class="card">
-            <div class="pair">XAU/USD <span class="accuracy-tag">89%</span></div>
-            <div id="xau-price" class="price">--</div>
-            <div id="xau-sig" class="signal wait">ANALYZING</div>
-            <div class="tp-sl">
-                <span style="color:#f6465d;">SL: <b id="xau-sl">--</b></span>
-                <span style="color:#02d39a;">TP: <b id="xau-tp">--</b></span>
+            <div id="btc-price" class="price-main">--</div>
+            <div id="btc-sig" class="signal-badge wait-style">ANALYZING...</div>
+            
+            <div class="acc-bar"><div class="acc-fill"></div></div>
+            
+            <div class="stats-row">
+                <div><span style="color: #848e9c;">SL</span><br><b id="btc-sl" style="color: var(--red);">--</b></div>
+                <div style="text-align: center;"><span style="color: #848e9c;">ENTRY</span><br><b id="btc-entry">--</b></div>
+                <div style="text-align: right;"><span style="color: #848e9c;">TP</span><br><b id="btc-tp" style="color: var(--green);">--</b></div>
             </div>
         </div>
     </div>
@@ -52,53 +53,36 @@
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        async function updateAI() {
+        async function fetchMarket() {
             try {
                 const res = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT');
                 const data = await res.json();
                 const price = parseFloat(data.lastPrice);
                 const change = parseFloat(data.priceChangePercent);
 
-                document.getElementById('btc-price').innerText = price.toFixed(2);
+                document.getElementById('btc-price').innerText = "$" + price.toLocaleString();
+                document.getElementById('btc-entry').innerText = price.toFixed(2);
                 
-                // --- BTC Logic (Strict 5M Filters) ---
                 const btcSig = document.getElementById('btc-sig');
-                if (change > 0.55) {
-                    btcSig.innerText = "STRONG BUY";
-                    btcSig.className = "signal strong-buy";
-                    document.getElementById('btc-sl').innerText = (price * 0.994).toFixed(0);
-                    document.getElementById('btc-tp').innerText = (price * 1.015).toFixed(0);
-                } else if (change < -0.55) {
-                    btcSig.innerText = "STRONG SELL";
-                    btcSig.className = "signal strong-sell";
-                    document.getElementById('btc-sl').innerText = (price * 1.006).toFixed(0);
-                    document.getElementById('btc-tp').innerText = (price * 0.985).toFixed(0);
+                if (change > 0.40) {
+                    btcSig.innerText = "EXTREME BUY ▲";
+                    btcSig.className = "signal-badge buy-style";
+                    document.getElementById('btc-sl').innerText = (price * 0.996).toFixed(2);
+                    document.getElementById('btc-tp').innerText = (price * 1.018).toFixed(2);
+                } else if (change < -0.40) {
+                    btcSig.innerText = "EXTREME SELL ▼";
+                    btcSig.className = "signal-badge sell-style";
+                    document.getElementById('btc-sl').innerText = (price * 1.004).toFixed(2);
+                    document.getElementById('btc-tp').innerText = (price * 0.982).toFixed(2);
                 } else {
-                    btcSig.innerText = "SIDEWAYS";
-                    btcSig.className = "signal wait";
-                }
-
-                // --- Gold (XAU) Data Logic ---
-                // Using a synthetic live price calculation based on BTC movement for high accuracy
-                const xauPrice = 2715.30 + (change * 2.5);
-                document.getElementById('xau-price').innerText = xauPrice.toFixed(2);
-                const xauSig = document.getElementById('xau-sig');
-                if(change > 0.35) {
-                    xauSig.innerText = "STRONG BUY";
-                    xauSig.className = "signal strong-buy";
-                    document.getElementById('xau-sl').innerText = (xauPrice - 12).toFixed(2);
-                    document.getElementById('xau-tp').innerText = (xauPrice + 28).toFixed(2);
-                } else {
-                    xauSig.innerText = "STRONG SELL";
-                    xauSig.className = "signal strong-sell";
-                    document.getElementById('xau-sl').innerText = (xauPrice + 12).toFixed(2);
-                    document.getElementById('xau-tp').innerText = (xauPrice - 28).toFixed(2);
+                    btcSig.innerText = "NEUTRAL / WAIT";
+                    btcSig.className = "signal-badge wait-style";
                 }
             } catch (e) { console.log("Updating..."); }
         }
 
-        setInterval(updateAI, 2500);
-        updateAI();
+        setInterval(fetchMarket, 2000);
+        fetchMarket();
 
         new TradingView.widget({
             "autosize": true,
@@ -109,8 +93,8 @@
             "style": "1",
             "container_id": "tv-chart",
             "hide_top_toolbar": false,
-            "allow_symbol_change": true,
-            "save_image": false
+            "backgroundColor": "#05070a",
+            "gridColor": "rgba(43, 47, 54, 0.5)"
         });
     </script>
 </body>
