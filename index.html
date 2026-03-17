@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Strong Signal Terminal</title>
+    <title>AI Active Scalper</title>
     <style>
         :root { --bg: #05070a; --card: #12151c; --accent: #f0b90b; --green: #02d39a; --red: #f6465d; }
         body { background-color: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; }
@@ -12,24 +12,20 @@
         .tf-btn { background: #1e2329; border: 1px solid #2b2f36; color: #848e9c; padding: 6px 12px; border-radius: 8px; font-size: 11px; cursor: pointer; }
         .tf-btn.active { background: var(--accent); color: black; font-weight: bold; }
 
-        .card { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid #2b2f36; margin-bottom: 15px; text-align: center; position: relative; }
+        .card { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid #2b2f36; margin-bottom: 15px; text-align: center; }
+        .price-display { font-size: 34px; font-weight: 800; margin-bottom: 10px; color: white; }
         
-        /* Pulse Animation for Strong Signals */
-        @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(2, 211, 154, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(2, 211, 154, 0); } 100% { box-shadow: 0 0 0 0 rgba(2, 211, 154, 0); } }
-        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(246, 70, 93, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(246, 70, 93, 0); } 100% { box-shadow: 0 0 0 0 rgba(246, 70, 93, 0); } }
+        .signal-indicator { font-size: 18px; font-weight: 900; padding: 15px; border-radius: 15px; margin-bottom: 15px; text-transform: uppercase; border: 1px solid transparent; }
+        .buy-mode { background: rgba(2, 211, 154, 0.15); color: var(--green); border-color: var(--green); }
+        .sell-mode { background: rgba(246, 70, 93, 0.15); color: var(--red); border-color: var(--red); }
+        .neutral-mode { background: #1e2329; color: #848e9c; border-color: #2b2f36; }
 
-        .signal-indicator { font-size: 18px; font-weight: 900; padding: 20px; border-radius: 15px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-        .strong-buy-bg { background: rgba(2, 211, 154, 0.2); color: var(--green); border: 2px solid var(--green); animation: pulse-green 2s infinite; }
-        .strong-sell-bg { background: rgba(246, 70, 93, 0.2); color: var(--red); border: 2px solid var(--red); animation: pulse-red 2s infinite; }
-        .no-trade { background: #1e2329; color: #4a4f55; border: 1px dashed #2b2f36; }
-
-        .price-display { font-size: 34px; font-weight: 800; margin-bottom: 10px; }
-        #action-area { display: none; }
-        .trade-btn { width: 100%; padding: 20px; border-radius: 15px; border: none; font-weight: 900; font-size: 20px; margin-bottom: 15px; }
+        .btn-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        .trade-btn { flex: 1; padding: 15px; border-radius: 12px; border: none; font-weight: 900; font-size: 16px; text-transform: uppercase; }
         
         .levels { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .level-box { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; border: 1px solid #2b2f36; }
-        #tv-chart { height: 400px; border-radius: 20px; border: 1px solid #2b2f36; overflow: hidden; }
+        #tv-chart { height: 380px; border-radius: 20px; border: 1px solid #2b2f36; overflow: hidden; }
     </style>
 </head>
 <body>
@@ -44,16 +40,16 @@
     <div class="card">
         <div id="price" class="price-display">--</div>
         
-        <div id="signal-box" class="signal-indicator no-trade">
-            🔍 SCANNING FOR STRONG TREND...
+        <div id="signal-box" class="signal-indicator neutral-mode">ANALYZING...</div>
+
+        <div class="btn-group">
+            <button id="buy-btn" class="trade-btn" style="background:var(--green); color:black;">BUY</button>
+            <button id="sell-btn" class="trade-btn" style="background:var(--red); color:white;">SELL</button>
         </div>
 
-        <div id="action-area">
-            <button id="main-btn" class="trade-btn">--</button>
-            <div class="levels">
-                <div class="level-box"><span style="font-size:10px; color:#848e9c;">STOP LOSS</span><br><span id="sl" style="color:var(--red); font-weight:bold; font-size:16px;">--</span></div>
-                <div class="level-box"><span style="font-size:10px; color:#848e9c;">TAKE PROFIT</span><br><span id="tp" style="color:var(--green); font-weight:bold; font-size:16px;">--</span></div>
-            </div>
+        <div class="levels">
+            <div class="level-box"><span style="font-size:10px; color:#848e9c;">STOP LOSS</span><br><span id="sl" style="color:var(--red); font-weight:bold;">--</span></div>
+            <div class="level-box"><span style="font-size:10px; color:#848e9c;">TAKE PROFIT</span><br><span id="tp" style="color:var(--green); font-weight:bold;">--</span></div>
         </div>
     </div>
 
@@ -65,8 +61,7 @@
         function loadChart(interval) {
             new TradingView.widget({
                 "autosize": true, "symbol": "BINANCE:BTCUSDT", "interval": interval,
-                "timezone": "Etc/UTC", "theme": "dark", "style": "1",
-                "container_id": "tv-chart", "hide_top_toolbar": false, "backgroundColor": "#05070a"
+                "theme": "dark", "container_id": "tv-chart", "backgroundColor": "#05070a"
             });
         }
 
@@ -77,7 +72,7 @@
             loadChart(tf);
         }
 
-        async function updateAI() {
+        async function updateScalper() {
             try {
                 const res = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT');
                 const data = await res.json();
@@ -85,40 +80,30 @@
                 const change = parseFloat(data.priceChangePercent);
 
                 document.getElementById('price').innerText = "$" + price.toLocaleString();
-                
                 const sigBox = document.getElementById('signal-box');
-                const actionArea = document.getElementById('action-area');
-                const mainBtn = document.getElementById('main-btn');
 
-                // --- STRENGTH FILTER (High Threshold 0.60%) ---
-                if (change > 0.60) {
-                    sigBox.innerText = "🔥 STRONG BUY NOW";
-                    sigBox.className = "signal-indicator strong-buy-bg";
-                    actionArea.style.display = "block";
-                    mainBtn.innerText = "BUY / LONG ▲";
-                    mainBtn.style.background = "var(--green)";
-                    mainBtn.style.color = "black";
-                    document.getElementById('sl').innerText = (price * 0.994).toFixed(2);
-                    document.getElementById('tp').innerText = (price * 1.02).toFixed(2);
-                } else if (change < -0.60) {
-                    sigBox.innerText = "💀 STRONG SELL NOW";
-                    sigBox.className = "signal-indicator strong-sell-bg";
-                    actionArea.style.display = "block";
-                    mainBtn.innerText = "SELL / SHORT ▼";
-                    mainBtn.style.background = "var(--red)";
-                    mainBtn.style.color = "white";
-                    document.getElementById('sl').innerText = (price * 1.006).toFixed(2);
-                    document.getElementById('tp').innerText = (price * 0.98).toFixed(2);
+                // FAST SCALPING LOGIC (Lower Threshold 0.25%)
+                if (change > 0.25) {
+                    sigBox.innerText = "BUY SIGNAL ACTIVE ▲";
+                    sigBox.className = "signal-indicator buy-mode";
+                    document.getElementById('sl').innerText = (price * 0.997).toFixed(2);
+                    document.getElementById('tp').innerText = (price * 1.01).toFixed(2);
+                } else if (change < -0.25) {
+                    sigBox.innerText = "SELL SIGNAL ACTIVE ▼";
+                    sigBox.className = "signal-indicator sell-mode";
+                    document.getElementById('sl').innerText = (price * 1.003).toFixed(2);
+                    document.getElementById('tp').innerText = (price * 0.99).toFixed(2);
                 } else {
-                    sigBox.innerText = "🔍 WAITING FOR STRONG SIGNAL...";
-                    sigBox.className = "signal-indicator no-trade";
-                    actionArea.style.display = "none";
+                    sigBox.innerText = "MARKET STABLE - NEUTRAL";
+                    sigBox.className = "signal-indicator neutral-mode";
+                    document.getElementById('sl').innerText = "--";
+                    document.getElementById('tp').innerText = "--";
                 }
             } catch (e) { }
         }
 
-        setInterval(updateAI, 2000);
-        updateAI();
+        setInterval(updateScalper, 2000);
+        updateScalper();
         loadChart('5');
     </script>
 </body>
