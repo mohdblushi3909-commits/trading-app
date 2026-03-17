@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Trading Signals Dashboard</title>
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --text-color: #c9d1d9;
+            --buy-color: #26a69a;
+            --sell-color: #ef5350;
+        }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: var(--bg-color); 
+            color: var(--text-color);
+            margin: 0; padding: 20px;
+        }
+        .container { max-width: 1000px; margin: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        #chart { 
+            width: 100%; height: 450px; 
+            background: var(--card-bg); 
+            border-radius: 12px; border: 1px solid #30363d;
+            overflow: hidden;
+        }
+
+        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+        .card { 
+            background: var(--card-bg); padding: 20px; 
+            border-radius: 12px; border: 1px solid #30363d; text-align: center;
+        }
+
+        .price-text { font-size: 2.5em; font-weight: bold; margin: 10px 0; }
+        .signal-badge { 
+            padding: 10px 25px; border-radius: 50px; font-weight: bold; font-size: 1.2em;
+            display: inline-block; margin-top: 10px;
+        }
+        
+        .buy { background: rgba(38, 166, 154, 0.2); color: var(--buy-color); border: 1px solid var(--buy-color); }
+        .sell { background: rgba(239, 83, 80, 0.2); color: var(--sell-color); border: 1px solid var(--sell-color); }
+        
+        .stats { display: flex; justify-content: space-around; margin-top: 15px; font-size: 0.9em; }
+        .sl { color: var(--sell-color); }
+        .tp { color: var(--buy-color); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Live Signals Tracker</h1>
+        <div id="status" style="color: #8b949e;">Market: Open</div>
+    </div>
+
+    <div id="chart"></div>
+
+    <div class="dashboard">
+        <div class="card">
+            <div style="color: #8b949e;">BTC/USDT Price</div>
+            <div id="price" class="price-text">0.00</div>
+        </div>
+        <div class="card">
+            <div style="color: #8b949e;">Current Signal</div>
+            <div id="signal-badge" class="signal-badge">Analyzing...</div>
+            <div class="stats">
+                <div>SL: <span id="sl-val" class="sl">-</span></div>
+                <div>TP: <span id="tp-val" class="tp">-</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Chart Setup
+    const chart = LightweightCharts.createChart(document.getElementById('chart'), {
+        layout: { backgroundColor: '#161b22', textColor: '#d1d4dc' },
+        grid: { vertLines: { color: '#30363d' }, horzLines: { color: '#30363d' } },
+        crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+        rightPriceScale: { borderColor: '#30363d' },
+        timeScale: { borderColor: '#30363d', timeVisible: true }
+    });
+
+    const candleSeries = chart.addCandlestickSeries({
+        upColor: '#26a69a', downColor: '#ef5350', borderVisible: false,
+        wickUpColor: '#26a69a', wickDownColor: '#ef5350'
+    });
+
+    let prices = [];
+
+    function calculateEMA(data, period) {
+        const k = 2 / (period + 1);
+        let ema = data[0];
+        for (let i = 1; i < data.length; i++) {
+            ema = data[i] * k + ema * (1 - k);
+        }
+        return ema;
+    }
+
+    async function updateData() {
+        try {
+            const response = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
+            const data = await response.json();
+            const currentPrice = parseFloat(data.price);
+            
+            prices.push(currentPrice);
+            if (prices.length > 50) prices.shift();
+
+            document.getElementById('price').innerText = `$${currentPrice.toLocaleString()}`;
+
+            // Logic for Signal
+            const emaVal = calculateEMA(prices, 14);
+            const badge = document.getElementById('signal-badge');
+            
+            if (currentPrice > emaVal) {
+                badge.innerText = "STRONG BUY";
+                badge.className = "signal-badge buy";
+                document.getElementById('sl-val').innerText = (currentPrice * 0.99).toFixed(2);
+                document.getElementById('tp-val').innerText = (currentPrice * 1.02).toFixed(2);
+            } else {
+                badge.innerText = "STRONG SELL";
+                badge.className = "signal-badge sell";
+                document.getElementById('sl-val').innerText = (currentPrice * 1.01).toFixed(2);
+                document.getElementById('tp-val').innerText = (currentPrice * 0.98).toFixed(2);
+            }
+
+            // Update Chart
+            candleSeries.update({
+                time: Math.floor(Date.now() / 1000),
+                open: prices[prices.length-2] || currentPrice,
+                high: currentPrice + 2,
+                low: currentPrice - 2,
+                close: currentPrice
+            });
+
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    }
+
+    setInterval(updateData, 3000);
+    updateData();
+
+    window.onresize = () => chart.resize(document.getElementById('chart').clientWidth, 450);
+</script>
+
+</body>
+</html>
