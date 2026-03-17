@@ -3,53 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Active Scalper</title>
+    <title>AI Gold Hunter V10.0</title>
     <style>
-        :root { --bg: #05070a; --card: #12151c; --accent: #f0b90b; --green: #02d39a; --red: #f6465d; }
-        body { background-color: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; }
+        :root { --bg: #040508; --card: #0d1117; --gold: #ffcc00; --green: #00ffaa; --red: #ff3b5c; }
+        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; padding: 10px; }
+        .dashboard { background: var(--card); border-radius: 25px; padding: 20px; border: 1px solid #1c212d; text-align: center; margin-bottom: 15px; box-shadow: 0 0 30px rgba(255, 204, 0, 0.05); }
+        .symbol { color: var(--gold); font-size: 14px; font-weight: bold; letter-spacing: 2px; }
+        .price { font-size: 42px; font-weight: 900; margin: 10px 0; }
         
-        .tf-switcher { display: flex; justify-content: center; gap: 5px; margin-bottom: 12px; }
-        .tf-btn { background: #1e2329; border: 1px solid #2b2f36; color: #848e9c; padding: 6px 12px; border-radius: 8px; font-size: 11px; cursor: pointer; }
-        .tf-btn.active { background: var(--accent); color: black; font-weight: bold; }
+        /* Risk Manager */
+        .risk-manager { background: rgba(255, 204, 0, 0.05); border: 1px solid rgba(255, 204, 0, 0.2); border-radius: 15px; padding: 15px; margin: 15px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .r-label { font-size: 10px; color: #848e9c; }
+        .r-val { font-size: 16px; font-weight: bold; color: var(--gold); }
 
-        .card { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid #2b2f36; margin-bottom: 15px; text-align: center; }
-        .price-display { font-size: 34px; font-weight: 800; margin-bottom: 10px; color: white; }
-        
-        .signal-indicator { font-size: 18px; font-weight: 900; padding: 15px; border-radius: 15px; margin-bottom: 15px; text-transform: uppercase; border: 1px solid transparent; }
-        .buy-mode { background: rgba(2, 211, 154, 0.15); color: var(--green); border-color: var(--green); }
-        .sell-mode { background: rgba(246, 70, 93, 0.15); color: var(--red); border-color: var(--red); }
-        .neutral-mode { background: #1e2329; color: #848e9c; border-color: #2b2f36; }
+        /* Powerful Signal Box */
+        .signal-box { padding: 25px; border-radius: 18px; font-size: 20px; font-weight: 900; text-transform: uppercase; margin: 20px 0; border: 2px solid transparent; transition: 0.5s; }
+        .buy { background: rgba(0, 255, 170, 0.1); color: var(--green); border-color: var(--green); box-shadow: 0 0 30px rgba(0, 255, 170, 0.2); }
+        .sell { background: rgba(255, 59, 92, 0.1); color: var(--red); border-color: var(--red); box-shadow: 0 0 30px rgba(255, 59, 92, 0.2); }
+        .wait { background: #161a23; color: #525f7a; }
 
-        .btn-group { display: flex; gap: 10px; margin-bottom: 15px; }
-        .trade-btn { flex: 1; padding: 15px; border-radius: 12px; border: none; font-weight: 900; font-size: 16px; text-transform: uppercase; }
+        .levels { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .lvl-box { background: #161a23; padding: 15px; border-radius: 15px; border-bottom: 3px solid #333; }
         
-        .levels { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .level-box { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; border: 1px solid #2b2f36; }
-        #tv-chart { height: 380px; border-radius: 20px; border: 1px solid #2b2f36; overflow: hidden; }
+        #tv-chart { height: 420px; border-radius: 20px; overflow: hidden; border: 1px solid #1c212d; }
     </style>
 </head>
 <body>
 
-    <div class="tf-switcher">
-        <button class="tf-btn" onclick="changeTF('1')">1M</button>
-        <button class="tf-btn active" id="default-tf" onclick="changeTF('5')">5M</button>
-        <button class="tf-btn" onclick="changeTF('15')">15M</button>
-        <button class="tf-btn" onclick="changeTF('60')">1H</button>
-    </div>
+    <div class="dashboard">
+        <div class="symbol">XAU/USD • GOLD ELITE</div>
+        <div id="price" class="price">0000.00</div>
 
-    <div class="card">
-        <div id="price" class="price-display">--</div>
-        
-        <div id="signal-box" class="signal-indicator neutral-mode">ANALYZING...</div>
-
-        <div class="btn-group">
-            <button id="buy-btn" class="trade-btn" style="background:var(--green); color:black;">BUY</button>
-            <button id="sell-btn" class="trade-btn" style="background:var(--red); color:white;">SELL</button>
+        <div class="risk-manager">
+            <div><span class="r-label">LOT SIZE (GOLD)</span><br><span class="r-val">0.01 - 0.02</span></div>
+            <div><span class="r-label">EQUITY REQ.</span><br><span class="r-val">$100+</span></div>
         </div>
+        
+        <div id="signal" class="signal-box wait">ANALYZING GOLD...</div>
 
-        <div class="levels">
-            <div class="level-box"><span style="font-size:10px; color:#848e9c;">STOP LOSS</span><br><span id="sl" style="color:var(--red); font-weight:bold;">--</span></div>
-            <div class="level-box"><span style="font-size:10px; color:#848e9c;">TAKE PROFIT</span><br><span id="tp" style="color:var(--green); font-weight:bold;">--</span></div>
+        <div class="levels" id="lvl-container" style="display: none;">
+            <div class="lvl-box" style="border-color: var(--red);">
+                <span class="r-label">STOP LOSS</span><br>
+                <span id="sl" style="color: var(--red); font-weight: bold;">--</span>
+            </div>
+            <div class="lvl-box" style="border-color: var(--green);">
+                <span class="r-label">TAKE PROFIT</span><br>
+                <span id="tp" style="color: var(--green); font-weight: bold;">--</span>
+            </div>
         </div>
     </div>
 
@@ -57,54 +57,43 @@
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        let currentInterval = '5';
-        function loadChart(interval) {
-            new TradingView.widget({
-                "autosize": true, "symbol": "BINANCE:BTCUSDT", "interval": interval,
-                "theme": "dark", "container_id": "tv-chart", "backgroundColor": "#05070a"
-            });
-        }
+        // Gold Chart Config
+        new TradingView.widget({ "autosize": true, "symbol": "OANDA:XAUUSD", "interval": "5", "theme": "dark", "container_id": "tv-chart", "style": "1" });
 
-        function changeTF(tf) {
-            currentInterval = tf;
-            document.querySelectorAll('.tf-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            loadChart(tf);
-        }
-
-        async function updateScalper() {
+        async function goldAnalysis() {
             try {
-                const res = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT');
-                const data = await res.json();
-                const price = parseFloat(data.lastPrice);
-                const change = parseFloat(data.priceChangePercent);
+                // Fetching Gold/Silver/Crypto prices from Binance for high-speed
+                const r = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=PAXGUSDT');
+                const d = await r.json();
+                const p = parseFloat(d.lastPrice); // Gold Token Price
+                const c = parseFloat(d.priceChangePercent);
 
-                document.getElementById('price').innerText = "$" + price.toLocaleString();
-                const sigBox = document.getElementById('signal-box');
+                document.getElementById('price').innerText = "$" + p.toFixed(2);
 
-                // FAST SCALPING LOGIC (Lower Threshold 0.25%)
-                if (change > 0.25) {
-                    sigBox.innerText = "BUY SIGNAL ACTIVE ▲";
-                    sigBox.className = "signal-indicator buy-mode";
-                    document.getElementById('sl').innerText = (price * 0.997).toFixed(2);
-                    document.getElementById('tp').innerText = (price * 1.01).toFixed(2);
-                } else if (change < -0.25) {
-                    sigBox.innerText = "SELL SIGNAL ACTIVE ▼";
-                    sigBox.className = "signal-indicator sell-mode";
-                    document.getElementById('sl').innerText = (price * 1.003).toFixed(2);
-                    document.getElementById('tp').innerText = (price * 0.99).toFixed(2);
+                const sBox = document.getElementById('signal');
+                const lBox = document.getElementById('lvl-container');
+
+                // GOLD SCALPING LOGIC (XAU is sensitive, so 0.30% is a strong move)
+                if (c > 0.30) {
+                    sBox.innerText = "🔱 STRONG BUY GOLD ▲";
+                    sBox.className = "signal-box buy";
+                    lBox.style.display = "grid";
+                    document.getElementById('sl').innerText = (p - 4).toFixed(2); // $4 Safety Gap
+                    document.getElementById('tp').innerText = (p + 8).toFixed(2); // $8 Profit Target
+                } else if (c < -0.30) {
+                    sBox.innerText = "🔥 STRONG SELL GOLD ▼";
+                    sBox.className = "signal-box sell";
+                    lBox.style.display = "grid";
+                    document.getElementById('sl').innerText = (p + 4).toFixed(2);
+                    document.getElementById('tp').innerText = (p - 8).toFixed(2);
                 } else {
-                    sigBox.innerText = "MARKET STABLE - NEUTRAL";
-                    sigBox.className = "signal-indicator neutral-mode";
-                    document.getElementById('sl').innerText = "--";
-                    document.getElementById('tp').innerText = "--";
+                    sBox.innerText = "⏳ GOLD CONSOLIDATING...";
+                    sBox.className = "signal-box wait";
+                    lBox.style.display = "none";
                 }
-            } catch (e) { }
+            } catch (e) {}
         }
-
-        setInterval(updateScalper, 2000);
-        updateScalper();
-        loadChart('5');
+        setInterval(goldAnalysis, 3000); goldAnalysis();
     </script>
 </body>
 </html>
