@@ -3,126 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Ultimate Predictor V11.0</title>
+    <title>AI Predator Fast V12.0</title>
     <style>
-        :root { --bg: #050608; --card: #0e1117; --gold: #f0b90b; --green: #00ffaa; --red: #ff3b5c; --blue: #3498db; }
+        :root { --bg: #06080c; --card: #11151c; --gold: #f0b90b; --green: #00ffaa; --red: #ff3b5c; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; }
-        .dashboard { background: var(--card); border-radius: 25px; padding: 20px; border: 1px solid #1c212d; text-align: center; margin-bottom: 15px; }
-        
-        /* Asset Switcher */
-        .switcher { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
-        .s-btn { padding: 10px 20px; border-radius: 12px; border: 1px solid #333; background: #161a23; color: white; cursor: pointer; font-weight: bold; }
-        .s-btn.active { border-color: var(--blue); background: rgba(52, 152, 219, 0.1); color: var(--blue); }
-
-        .price { font-size: 45px; font-weight: 900; margin: 10px 0; letter-spacing: -1px; }
-        
-        /* High Accuracy Signal Box */
-        .signal-box { padding: 25px; border-radius: 20px; font-size: 22px; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; border: 2px solid transparent; transition: 0.5s; position: relative; overflow: hidden; }
-        .buy { background: rgba(0, 255, 170, 0.08); color: var(--green); border-color: var(--green); box-shadow: 0 0 40px rgba(0, 255, 170, 0.2); }
-        .sell { background: rgba(255, 59, 92, 0.08); color: var(--red); border-color: var(--red); box-shadow: 0 0 40px rgba(255, 59, 92, 0.2); }
-        .wait { background: #161a23; color: #525f7a; border-color: #232a3b; }
-
-        .levels { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .lvl-box { background: #161a23; padding: 15px; border-radius: 15px; border-bottom: 4px solid #333; }
-        .label { font-size: 10px; color: #848e9c; display: block; margin-bottom: 5px; }
-
-        #tv-chart { height: 400px; border-radius: 25px; overflow: hidden; border: 1px solid #1c212d; }
+        .header { background: var(--card); border-radius: 25px; padding: 20px; text-align: center; border: 1px solid #1c212d; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .switcher { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+        .s-btn { flex: 1; padding: 15px; border-radius: 15px; border: 1px solid #333; background: #1a1f26; color: white; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 12px; }
+        .s-btn.active { border-color: var(--gold); background: rgba(240, 185, 11, 0.15); color: var(--gold); }
+        .price-box { font-size: 48px; font-weight: 900; margin: 15px 0; text-shadow: 0 0 20px rgba(255,255,255,0.1); }
+        .signal-btn { width: 100%; padding: 30px; border-radius: 20px; font-size: 26px; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; border: none; display: none; animation: glow 1.5s infinite alternate; }
+        @keyframes glow { from { opacity: 0.8; } to { opacity: 1; transform: scale(1.01); } }
+        .buy-now { background: linear-gradient(135deg, #00ffaa, #00b377); color: #000; display: block; }
+        .sell-now { background: linear-gradient(135deg, #ff3b5c, #cc2e4a); color: white; display: block; }
+        .analyzing { background: #1a1f26; color: #4a5568; padding: 25px; border-radius: 20px; display: block; font-weight: bold; border: 1px dashed #2d3748; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .stat-card { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 15px; border-bottom: 3px solid #333; }
+        #tv-chart { height: 420px; border-radius: 25px; margin-top: 15px; border: 1px solid #1c212d; }
     </style>
 </head>
 <body>
-
-    <div class="dashboard">
+    <div class="header">
         <div class="switcher">
-            <button class="s-btn active" onclick="setAsset('GOLD')">GOLD (XAU)</button>
-            <button class="s-btn" onclick="setAsset('BTC')">BITCOIN (BTC)</button>
+            <button id="gold-btn" class="s-btn active" onclick="changeMode('GOLD')">🔱 GOLD PRO</button>
+            <button id="btc-btn" class="s-btn" onclick="changeMode('BTC')">⚡ BTC FAST</button>
         </div>
-
-        <div id="asset-name" style="font-size: 12px; color: var(--blue); font-weight: bold;">ANALYZING MARKET...</div>
-        <div id="price" class="price">0.00</div>
-        
-        <div id="signal" class="signal-box wait">INITIALIZING AI...</div>
-
-        <div class="levels" id="lvl-container" style="display: none;">
-            <div class="lvl-box" style="border-color: var(--red);">
-                <span class="label">SECURE STOP LOSS</span>
-                <span id="sl" style="font-size: 18px; font-weight: bold; color: var(--red);">--</span>
-            </div>
-            <div class="lvl-box" style="border-color: var(--green);">
-                <span class="label">TARGET PROFIT</span>
-                <span id="tp" style="font-size: 18px; font-weight: bold; color: var(--green);">--</span>
-            </div>
+        <div id="price" class="price-box">$0.00</div>
+        <div id="signal-area">
+            <div id="wait-ui" class="analyzing">⚡ AI ANALYZING MARKET...</div>
+            <button id="buy-ui" class="signal-btn buy-now">🔥 STRONG BUY NOW ▲</button>
+            <button id="sell-ui" class="signal-btn sell-now">🔻 STRONG SELL NOW ▼</button>
+        </div>
+        <div class="stats-grid" id="details" style="display: none;">
+            <div class="stat-card" style="border-color: var(--red);"><span style="font-size: 10px; color: #848e9c;">STOP LOSS</span><br><span id="sl-price" style="color: var(--red); font-weight: bold; font-size: 18px;">--</span></div>
+            <div class="stat-card" style="border-color: var(--green);"><span style="font-size: 10px; color: #848e9c;">TAKE PROFIT</span><br><span id="tp-price" style="color: var(--green); font-weight: bold; font-size: 18px;">--</span></div>
         </div>
     </div>
-
     <div id="tv-chart"></div>
-
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <audio id="alert-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
+    <script src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        let currentAsset = 'GOLD';
-        let widget = null;
-
-        function loadChart(symbol) {
-            document.getElementById('tv-chart').innerHTML = '';
-            widget = new TradingView.widget({
-                "autosize": true,
-                "symbol": symbol === 'GOLD' ? "OANDA:XAUUSD" : "BINANCE:BTCUSDT",
-                "interval": "5",
-                "theme": "dark",
-                "container_id": "tv-chart",
-                "style": "1"
-            });
-        }
-
-        function setAsset(asset) {
-            currentAsset = asset;
-            document.querySelectorAll('.s-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
-            loadChart(asset);
-            updateData();
-        }
-
-        async function updateData() {
+        let currentMode = 'GOLD'; let lastSignal = 'NONE';
+        function changeMode(m) { currentMode = m; document.getElementById('gold-btn').classList.toggle('active', m === 'GOLD'); document.getElementById('btc-btn').classList.toggle('active', m === 'BTC'); lastSignal = 'NONE'; loadChart(); updateLogic(); }
+        function loadChart() { document.getElementById('tv-chart').innerHTML = ''; new TradingView.widget({ "autosize": true, "symbol": currentMode === 'GOLD' ? "OANDA:XAUUSD" : "BINANCE:BTCUSDT", "interval": "1", "theme": "dark", "container_id": "tv-chart", "style": "1" }); }
+        async function updateLogic() {
             try {
-                const symbol = currentAsset === 'GOLD' ? 'PAXGUSDT' : 'BTCUSDT';
-                const r = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`);
-                const d = await r.json();
-                const p = parseFloat(d.lastPrice);
-                const c = parseFloat(d.priceChangePercent);
-
-                document.getElementById('asset-name').innerText = currentAsset + " ULTIMATE ANALYSIS";
-                document.getElementById('price').innerText = (currentAsset === 'GOLD' ? "$" : "$") + p.toLocaleString();
-
-                const sB = document.getElementById('signal');
-                const lC = document.getElementById('lvl-container');
-
-                // 90% ACCURACY LOGIC: High Thresholds
-                const threshold = currentAsset === 'GOLD' ? 0.25 : 0.80;
-
-                if (c > threshold) {
-                    sB.innerText = "🔱 STRONG BUY / LONG";
-                    sB.className = "signal-box buy";
-                    lC.style.display = "grid";
-                    const gap = currentAsset === 'GOLD' ? 4 : (p * 0.012);
-                    document.getElementById('sl').innerText = (p - gap).toFixed(2);
-                    document.getElementById('tp').innerText = (p + (gap*2)).toFixed(2);
-                } else if (c < -threshold) {
-                    sB.innerText = "🔥 STRONG SELL / SHORT";
-                    sB.className = "signal-box sell";
-                    lC.style.display = "grid";
-                    const gap = currentAsset === 'GOLD' ? 4 : (p * 0.012);
-                    document.getElementById('sl').innerText = (p + gap).toFixed(2);
-                    document.getElementById('tp').innerText = (p - (gap*2)).toFixed(2);
-                } else {
-                    sB.innerText = "⏳ NO SIGNAL (STAY OUT)";
-                    sB.className = "signal-box wait";
-                    lC.style.display = "none";
+                const sym = currentMode === 'GOLD' ? 'PAXGUSDT' : 'BTCUSDT';
+                const r = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${sym}`);
+                const d = await r.json(); const p = parseFloat(d.lastPrice); const c = parseFloat(d.priceChangePercent);
+                document.getElementById('price').innerText = "$" + p.toLocaleString();
+                const bU = document.getElementById('buy-ui'); const sU = document.getElementById('sell-ui'); const wU = document.getElementById('wait-ui'); const det = document.getElementById('details'); const sound = document.getElementById('alert-sound');
+                const target = currentMode === 'GOLD' ? 0.18 : 0.65;
+                if (c > target) { bU.style.display = "block"; sU.style.display = "none"; wU.style.display = "none"; det.style.display = "grid"; if(lastSignal !== 'BUY') { sound.play(); lastSignal = 'BUY'; }
+                    const gap = currentMode === 'GOLD' ? 4 : (p * 0.01); document.getElementById('sl-price').innerText = (p - gap).toFixed(2); document.getElementById('tp-price').innerText = (p + (gap*2.5)).toFixed(2);
+                } else if (c < -target) { sU.style.display = "block"; bU.style.display = "none"; wU.style.display = "none"; det.style.display = "grid"; if(lastSignal !== 'SELL') { sound.play(); lastSignal = 'SELL'; }
+                    const gap = currentMode === 'GOLD' ? 4 : (p * 0.01); document.getElementById('sl-price').innerText = (p + gap).toFixed(2); document.getElementById('tp-price').innerText = (p - (gap*2.5)).toFixed(2);
                 }
-            } catch (e) {}
-        }
-
-        loadChart('GOLD');
-        setInterval(updateData, 3000);
-        updateData();
-    </script>
-</body>
-</html>
