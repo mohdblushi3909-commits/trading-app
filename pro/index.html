@@ -3,12 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Pro V14.0 - All In One</title>
+    <title>Elite Pro V15.0 - Perfect Sync</title>
     <style>
-        :root { --bg: #0b1018; --card: #151a23; --gold: #f0b90b; --green: #00ffaa; --red: #ff3b5c; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 10px; }
-        .dashboard { background: var(--card); border-radius: 25px; padding: 20px; border: 1px solid #232a3b; text-align: center; }
+        :root { --bg: #06080c; --card: #11151c; --gold: #f0b90b; --green: #00ffaa; --red: #ff3b5c; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; }
+        .dashboard { background: var(--card); border-radius: 25px; padding: 20px; border: 1px solid #1c212d; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         
-        /* Fixed Asset Switcher */
         .switcher { display: flex; gap: 10px; margin-bottom: 20px; }
-        .s-btn { flex: 1; padding:
+        .s-btn { flex: 1; padding: 15px; border-radius: 12px; border: 1px solid #333; background: #1a1f26; color: white; font-weight: 800; cursor: pointer; font-size: 12px; }
+        .s-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(240, 185, 11, 0.1); }
+
+        .price { font-size: 48px; font-weight: 900; margin: 15px 0; letter-spacing: -1px; }
+        
+        .advisor { background: rgba(255,255,255,0.03); border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 5px solid var(--gold); }
+        #entry-msg { font-size: 22px; font-weight: 800; text-transform: uppercase; }
+
+        .sig-box { padding: 25px; border-radius: 20px; font-size: 26px; font-weight: 900; margin-bottom: 15px; border: 2px solid #2d3748; transition: 0.3s; }
+        .buy { border-color: var(--green); color: var(--green); background: rgba(0, 255, 170, 0.05); }
+        .sell { border-color: var(--red); color: var(--red); background: rgba(255, 59, 92, 0.05); }
+        
+        .levels { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .l-box { background: #1c212d; padding: 15px; border-radius: 15px; font-size: 14px; border-bottom: 4px solid #333; }
+        
+        #tv-chart { height: 450px; border-radius: 25px; margin-top: 15px; border: 1px solid #1c212d; }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        <div class="switcher">
+            <button id="g-btn" class="s-btn active" onclick="setMode('GOLD')">🔱 GOLD PRO</button>
+            <button id="b-btn" class="s-btn" onclick="setMode('BTC')">₿ BTC PRO</button>
+        </div>
+
+        <div id="price" class="price">--</div>
+
+        <div class="advisor">
+            <span style="font-size: 10px; color: #848e9c; letter-spacing: 1px;">AI ENTRY ADVISOR</span><br>
+            <div id="entry-msg">ANALYZING...</div>
+        </div>
+
+        <div id="signal" class="sig-box">SCANNING...</div>
+
+        <div class="levels">
+            <div class="l-box">SL: <span id="sl" style="color:var(--red); font-weight:bold;">--</span></div>
+            <div class="l-box">TP: <span id="tp" style="color:var(--green); font-weight:bold;">--</span></div>
+        </div>
+    </div>
+
+    <div id="tv-chart"></div>
+
+    <script src="https://s3.tradingview.com/tv.js"></script>
+    <script>
+        let mode = 'GOLD';
+        function setMode(m) { mode = m; document.getElementById('g-btn').classList.toggle('active', m==='GOLD'); document.getElementById('b-btn').classList.toggle('active', m==='BTC'); loadChart(); updateLogic(); }
+        
+        function loadChart() {
+            document.getElementById('tv-chart').innerHTML = '';
+            new TradingView.widget({
+                "autosize": true, "symbol": mode==='GOLD' ? "OANDA:XAUUSD" : "BINANCE:BTCUSDT", "interval": "5", "theme": "dark", "container_id": "tv-chart", "style": "1", "toolbar_bg": "#f1f3f6", "enable_publishing": false, "hide_side_toolbar": false, "allow_symbol_change": true
+            });
+        }
+
+        async function updateLogic() {
+            try {
+                const sym = mode === 'GOLD' ? 'PAXGUSDT' : 'BTCUSDT';
+                const r = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${sym}`);
+                const d = await r.json();
+                let p = parseFloat(d.lastPrice);
+                const c = parseFloat(d.priceChangePercent);
+
+                // Price Sync: Adding offset for Gold to match XAUUSD chart price
+                if(mode === 'GOLD') { p = p + 9.85; }
+
+                document.getElementById('price').innerText = "$" + p.toLocaleString(undefined, {minimumFractionDigits: 2});
+                
+                const s = document.getElementById('signal');
+                const e = document.getElementById('entry-msg');
+                const threshold = mode === 'GOLD' ? 0.15 : 0.50;
+
+                if (c > threshold) {
+                    s.innerText = "STRONG BUY " + mode; s.className = "sig-box buy";
+                    e.innerText = "✅ ENTRY NOW"; e.style.color = "#00ffaa";
+                } else if (c < -threshold) {
+                    s.innerText = "STRONG SELL " + mode; s.className = "sig-box sell";
+                    e.innerText = "✅ ENTRY NOW"; e.style.color = "#ff3b5c";
+                } else {
+                    s.innerText = "WAITING..."; s.className = "sig-box";
+                    e.innerText = "❌ NO ENTRY"; e.style.color = "#848e9c";
+                }
+
+                const gap = mode === 'GOLD' ? 5.5 : (p * 0.006);
+                document.getElementById('sl').innerText = (p - gap).toFixed(2);
+                document.getElementById('tp').innerText = (p + (gap * 2.2)).toFixed(2);
+            } catch (err) {}
+        }
+
+        loadChart(); setInterval(updateLogic, 3000); updateLogic();
+    </script>
+</body>
+</html>
