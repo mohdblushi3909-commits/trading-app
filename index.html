@@ -3,48 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Ultra Trading Hub</title>
+    <title>AI Safe-Trade Terminal</title>
     <style>
         :root { --bg: #05070a; --card: #12151c; --accent: #f0b90b; --green: #02d39a; --red: #f6465d; }
-        body { background-color: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; padding: 12px; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px; margin-bottom: 15px; border-bottom: 1px solid #2b2f36; }
-        .grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-        .card { background: var(--card); border-radius: 20px; padding: 18px; border: 1px solid #2b2f36; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--accent); }
-        .pair-title { font-size: 14px; color: #848e9c; font-weight: 600; }
-        .price-main { font-size: 28px; font-weight: 800; margin: 8px 0; letter-spacing: -1px; }
-        .signal-badge { display: inline-block; padding: 6px 15px; border-radius: 12px; font-size: 14px; font-weight: bold; margin: 10px 0; text-transform: uppercase; }
-        .buy-style { background: rgba(2, 211, 154, 0.15); color: var(--green); border: 1px solid var(--green); }
-        .sell-style { background: rgba(246, 70, 93, 0.15); color: var(--red); border: 1px solid var(--red); }
-        .wait-style { background: #2b2f36; color: #848e9c; }
-        .stats-row { display: flex; justify-content: space-between; margin-top: 15px; font-size: 13px; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 12px; }
-        .acc-bar { height: 4px; background: #2b2f36; border-radius: 2px; margin-top: 8px; width: 100%; }
-        .acc-fill { height: 100%; background: var(--accent); width: 92%; border-radius: 2px; box-shadow: 0 0 10px var(--accent); }
-        #tv-chart { height: 400px; border-radius: 20px; margin-top: 15px; border: 1px solid #2b2f36; }
+        body { background-color: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; }
+        .card { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid #2b2f36; margin-bottom: 15px; text-align: center; }
+        .price-display { font-size: 36px; font-weight: 800; color: white; margin: 10px 0; }
+        
+        /* Dynamic Signal Box */
+        .signal-indicator { font-size: 18px; font-weight: bold; padding: 15px; border-radius: 12px; margin-bottom: 15px; transition: 0.3s; }
+        .no-trade { background: #1e2329; color: #5f666e; border: 1px dashed #4a4f55; }
+        
+        /* Action Buttons Container */
+        #action-area { display: none; margin-top: 15px; }
+        .btn-group { display: flex; gap: 10px; }
+        .trade-btn { flex: 1; padding: 18px; border-radius: 12px; border: none; font-weight: 900; font-size: 18px; text-transform: uppercase; }
+        .buy-btn { background: var(--green); color: black; box-shadow: 0 0 20px rgba(2, 211, 154, 0.3); }
+        .sell-btn { background: var(--red); color: white; box-shadow: 0 0 20px rgba(246, 70, 93, 0.3); }
+
+        .levels { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .level-val { display: block; font-size: 16px; font-weight: bold; margin-top: 4px; }
+        #tv-chart { height: 400px; border-radius: 20px; border: 1px solid #2b2f36; overflow: hidden; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div style="color: var(--accent); font-weight: 900;">AI PREDICTOR <span style="font-weight: 100;">V6.0</span></div>
-        <div style="font-size: 10px; background: #2b2f36; padding: 4px 10px; border-radius: 20px;">LIVE 5M DATA</div>
-    </div>
+    <div class="card">
+        <div style="color: var(--accent); font-weight: bold; margin-bottom: 5px;">BTC/USDT 5M ANALYSIS</div>
+        <div id="price" class="price-display">--</div>
+        
+        <div id="signal-box" class="signal-indicator no-trade">
+            ⏳ NO TRADE ZONE - MARKET UNSTABLE
+        </div>
 
-    <div class="grid">
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span class="pair-title">BTC / USDT</span>
-                <span style="font-size: 10px; color: var(--green);">● ACTIVE</span>
+        <div id="action-area">
+            <div class="btn-group">
+                <button id="buy-btn" class="trade-btn buy-btn">BUY / LONG ▲</button>
+                <button id="sell-btn" class="trade-btn sell-btn">SELL / SHORT ▼</button>
             </div>
-            <div id="btc-price" class="price-main">--</div>
-            <div id="btc-sig" class="signal-badge wait-style">ANALYZING...</div>
-            
-            <div class="acc-bar"><div class="acc-fill"></div></div>
-            
-            <div class="stats-row">
-                <div><span style="color: #848e9c;">SL</span><br><b id="btc-sl" style="color: var(--red);">--</b></div>
-                <div style="text-align: center;"><span style="color: #848e9c;">ENTRY</span><br><b id="btc-entry">--</b></div>
-                <div style="text-align: right;"><span style="color: #848e9c;">TP</span><br><b id="btc-tp" style="color: var(--green);">--</b></div>
+            <div class="levels">
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:10px;">
+                    <span style="font-size:10px; color:#848e9c;">STOP LOSS</span>
+                    <span id="sl" class="level-val" style="color:var(--red);">--</span>
+                </div>
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:10px;">
+                    <span style="font-size:10px; color:#848e9c;">TAKE PROFIT</span>
+                    <span id="tp" class="level-val" style="color:var(--green);">--</span>
+                </div>
             </div>
         </div>
     </div>
@@ -53,48 +58,60 @@
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        async function fetchMarket() {
+        async function checkMarket() {
             try {
                 const res = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT');
                 const data = await res.json();
                 const price = parseFloat(data.lastPrice);
                 const change = parseFloat(data.priceChangePercent);
 
-                document.getElementById('btc-price').innerText = "$" + price.toLocaleString();
-                document.getElementById('btc-entry').innerText = price.toFixed(2);
+                document.getElementById('price').innerText = "$" + price.toLocaleString();
                 
-                const btcSig = document.getElementById('btc-sig');
-                if (change > 0.40) {
-                    btcSig.innerText = "EXTREME BUY ▲";
-                    btcSig.className = "signal-badge buy-style";
-                    document.getElementById('btc-sl').innerText = (price * 0.996).toFixed(2);
-                    document.getElementById('btc-tp').innerText = (price * 1.018).toFixed(2);
-                } else if (change < -0.40) {
-                    btcSig.innerText = "EXTREME SELL ▼";
-                    btcSig.className = "signal-badge sell-style";
-                    document.getElementById('btc-sl').innerText = (price * 1.004).toFixed(2);
-                    document.getElementById('btc-tp').innerText = (price * 0.982).toFixed(2);
+                const sigBox = document.getElementById('signal-box');
+                const actionArea = document.getElementById('action-area');
+                const bBtn = document.getElementById('buy-btn');
+                const sBtn = document.getElementById('sell-btn');
+
+                // Strict Logic: Only show buttons if change is strong (> 0.45% or < -0.45%)
+                if (change > 0.45) {
+                    sigBox.innerText = "🚀 STRONG BUY TREND";
+                    sigBox.style.background = "rgba(2, 211, 154, 0.2)";
+                    sigBox.style.color = "var(--green)";
+                    actionArea.style.display = "block";
+                    bBtn.style.display = "block";
+                    sBtn.style.display = "none"; // Hide sell button on buy trend
+                    document.getElementById('sl').innerText = (price * 0.995).toFixed(2);
+                    document.getElementById('tp').innerText = (price * 1.018).toFixed(2);
+                } else if (change < -0.45) {
+                    sigBox.innerText = "📉 STRONG SELL TREND";
+                    sigBox.style.background = "rgba(246, 70, 93, 0.2)";
+                    sigBox.style.color = "var(--red)";
+                    actionArea.style.display = "block";
+                    sBtn.style.display = "block";
+                    bBtn.style.display = "none"; // Hide buy button on sell trend
+                    document.getElementById('sl').innerText = (price * 1.005).toFixed(2);
+                    document.getElementById('tp').innerText = (price * 0.982).toFixed(2);
                 } else {
-                    btcSig.innerText = "NEUTRAL / WAIT";
-                    btcSig.className = "signal-badge wait-style";
+                    // RESET - Hide everything when market is risky
+                    sigBox.innerText = "⏳ NO TRADE ZONE - WAIT";
+                    sigBox.className = "signal-indicator no-trade";
+                    sigBox.style.background = "#1e2329";
+                    sigBox.style.color = "#5f666e";
+                    actionArea.style.display = "none";
                 }
-            } catch (e) { console.log("Updating..."); }
+            } catch (e) { console.log("System Scanning..."); }
         }
 
-        setInterval(fetchMarket, 2000);
-        fetchMarket();
+        setInterval(checkMarket, 2500);
+        checkMarket();
 
         new TradingView.widget({
             "autosize": true,
             "symbol": "BINANCE:BTCUSDT",
             "interval": "5",
-            "timezone": "Etc/UTC",
             "theme": "dark",
-            "style": "1",
             "container_id": "tv-chart",
-            "hide_top_toolbar": false,
-            "backgroundColor": "#05070a",
-            "gridColor": "rgba(43, 47, 54, 0.5)"
+            "backgroundColor": "#05070a"
         });
     </script>
 </body>
