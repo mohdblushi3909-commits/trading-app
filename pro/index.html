@@ -3,87 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Quantum Scalper - Mystic Edition</title>
+    <title>AI Predator Elite V9.5 + Risk Manager</title>
     <style>
-        :root { --bg: #030406; --card: #0c0e12; --accent: #f0b90b; --green: #02d39a; --red: #f6465d; --glass: rgba(255, 255, 255, 0.03); }
-        body { background-color: var(--bg); color: white; font-family: 'SF Pro Display', sans-serif; margin: 0; padding: 12px; }
+        :root { --bg: #050608; --card: #0e1117; --green: #00ffaa; --red: #ff3b5c; --accent: #f0b90b; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; }
+        .dashboard { background: var(--card); border-radius: 25px; padding: 20px; border: 1px solid #1c212d; text-align: center; margin-bottom: 15px; }
+        .price { font-size: 40px; font-weight: 900; margin: 10px 0; color: white; }
         
-        /* Premium Header */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #1a1d24; margin-bottom: 15px; }
-        .logo-text { color: var(--accent); font-weight: 900; letter-spacing: 1px; }
+        /* Risk Calculator Box */
+        .risk-box { background: rgba(240, 185, 11, 0.05); border: 1px dashed var(--accent); border-radius: 15px; padding: 15px; margin: 15px 0; display: flex; justify-content: space-around; align-items: center; }
+        .risk-item { text-align: center; }
+        .risk-label { font-size: 10px; color: #848e9c; display: block; margin-bottom: 4px; }
+        .risk-value { font-size: 16px; font-weight: bold; color: var(--accent); }
 
-        /* Timeframe Switcher - Neo Style */
-        .tf-switcher { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
-        .tf-btn { background: var(--glass); border: 1px solid #1a1d24; color: #848e9c; padding: 10px 18px; border-radius: 12px; font-size: 11px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
-        .tf-btn.active { background: var(--glass); color: white; font-weight: bold; border-color: white; box-shadow: 0 0 15px rgba(255, 255, 255, 0.1); }
+        .signal-box { padding: 20px; border-radius: 15px; font-size: 18px; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; border: 2px solid transparent; transition: 0.5s; }
+        .buy { background: rgba(0, 255, 170, 0.1); color: var(--green); border-color: var(--green); }
+        .sell { background: rgba(255, 59, 92, 0.1); color: var(--red); border-color: var(--red); }
+        .wait { background: #161a23; color: #525f7a; }
 
-        /* Quantum Card Layout */
-        .quantum-card { background: var(--card); border-radius: 25px; padding: 25px; border: 1px solid #1a1d24; margin-bottom: 15px; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.6); overflow: hidden; }
-        .market-label { font-size: 11px; color: #5f666e; text-align: center; margin-bottom: 8px; }
-        .price-display { font-size: 42px; font-weight: 900; color: white; text-align: center; margin-bottom: 20px; letter-spacing: -1px; }
-        
-        /* Dynamic Signal Box - High Glower */
-        .signal-indicator { font-size: 20px; font-weight: 900; padding: 20px; border-radius: 18px; margin-bottom: 25px; text-align: center; text-transform: uppercase; letter-spacing: 1px; transition: 0.5s; }
-        
-        /* Strong Buy Glow */
-        .signal-indicator.buy { background: rgba(2, 211, 154, 0.05); color: var(--green); border: 1px solid rgba(2, 211, 154, 0.3); box-shadow: 0 0 30px rgba(2, 211, 154, 0.2), inset 0 0 15px rgba(2, 211, 154, 0.1); }
-        /* Strong Sell Glow */
-        .signal-indicator.sell { background: rgba(246, 70, 93, 0.05); color: var(--red); border: 1px solid rgba(246, 70, 93, 0.3); box-shadow: 0 0 30px rgba(246, 70, 93, 0.2), inset 0 0 15px rgba(246, 70, 93, 0.1); }
-        .signal-indicator.neutral { background: var(--glass); color: #5f666e; border: 1px solid #1a1d24; }
+        .levels { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .lvl-box { background: #161a23; padding: 12px; border-radius: 12px; border-left: 4px solid #333; }
+        .lvl-box.sl { border-left-color: var(--red); }
+        .lvl-box.tp { border-left-color: var(--green); }
 
-        /* Action Buttons - Futuristic */
-        .action-container { display: none; }
-        .trade-btn { width: 100%; padding: 22px; border-radius: 18px; border: none; font-weight: 900; font-size: 20px; text-transform: uppercase; margin-bottom: 25px; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; }
-        .buy-btn { background: linear-gradient(135deg, var(--green) 0%, #00b386 100%); color: black; box-shadow: 0 10px 25px rgba(2, 211, 154, 0.3); }
-        .sell-btn { background: linear-gradient(135deg, var(--red) 0%, #d33c4f 100%); color: white; box-shadow: 0 10px 25px rgba(246, 70, 93, 0.3); }
-
-        /* Levels Grid - Minimalist */
-        .levels-minimal { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
-        .level-minimal-box { background: var(--glass); padding: 15px; border-radius: 15px; border: 1px solid #1a1d24; position: relative; }
-        .level-minimal-box.sl { border-left: 3px solid var(--red); }
-        .level-minimal-box.tp { border-left: 3px solid var(--green); }
-        .minimal-label { font-size: 10px; color: #848e9c; display: block; margin-bottom: 4px; }
-        .minimal-price { font-size: 18px; font-weight: bold; color: white; }
-
-        /* Integrated Chart Container */
-        #tv-chart { height: 450px; border-radius: 25px; border: 1px solid #1a1d24; overflow: hidden; margin-top: 15px; position: relative; }
+        #tv-chart { height: 400px; border-radius: 20px; overflow: hidden; border: 1px solid #1c212d; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <span class="logo-text">AI QUANTUM <span style="font-weight:100;">V8.0</span></span>
-        <span style="font-size:10px; background:var(--glass); padding:5px 10px; border-radius:20px; color:#848e9c;">SCALPING NODE</span>
-    </div>
+    <div class="dashboard">
+        <div style="font-size: 12px; color: var(--accent);">ELITE PRO TERMINAL V9.5</div>
+        <div id="price" class="price">--</div>
 
-    <div class="tf-switcher">
-        <button class="tf-btn" onclick="changeTF('1')">1M</button>
-        <button class="tf-btn active" id="btn-5" onclick="changeTF('5')">5M</button>
-        <button class="tf-btn" onclick="changeTF('15')">15M</button>
-        <button class="tf-btn" onclick="changeTF('60')">1H</button>
-    </div>
-
-    <div class="quantum-card">
-        <div class="market-label">BTC / USDT Quantum Analysis</div>
-        <div id="price" class="price-display">--</div>
-        
-        <div id="signal-box" class="signal-indicator neutral">SCANNING...</div>
-
-        <div id="buy-container" class="action-container">
-            <button class="trade-btn buy-btn">BUY / LONG ▲</button>
-        </div>
-        <div id="sell-container" class="action-container">
-            <button class="trade-btn sell-btn">SELL / SHORT ▼</button>
-        </div>
-
-        <div class="levels-minimal" id="levels-box" style="display: none;">
-            <div class="level-minimal-box sl">
-                <span class="minimal-label">STOP LOSS</span>
-                <span id="sl" class="minimal-price" style="color: var(--red);">--</span>
+        <div class="risk-box">
+            <div class="risk-item">
+                <span class="risk-label">YOUR BALANCE</span>
+                <span class="risk-value">$100</span>
             </div>
-            <div class="level-minimal-box tp">
-                <span class="minimal-label">TAKE PROFIT</span>
-                <span id="tp" class="minimal-price" style="color: var(--green);">--</span>
+            <div class="risk-item">
+                <span class="risk-label">MAX TRADE SIZE</span>
+                <span id="trade-size" class="risk-value">$20</span>
+            </div>
+            <div class="risk-item">
+                <span class="risk-label">LEVERAGE</span>
+                <span class="risk-value">10X-20X</span>
+            </div>
+        </div>
+        
+        <div id="signal" class="signal-box wait">Scanning Market...</div>
+
+        <div class="levels" id="lvl-container" style="display: none;">
+            <div class="lvl-box sl">
+                <span style="font-size: 10px; color: #848e9c; display: block;">STOP LOSS</span>
+                <span id="sl" style="font-size: 16px; font-weight: bold; color: var(--red);">--</span>
+            </div>
+            <div class="lvl-box tp">
+                <span style="font-size: 10px; color: #848e9c; display: block;">TAKE PROFIT</span>
+                <span id="tp" style="font-size: 16px; font-weight: bold; color: var(--green);">--</span>
             </div>
         </div>
     </div>
@@ -92,66 +68,46 @@
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        let currentTF = '5';
-        function loadChart(tf) {
-            new TradingView.widget({
-                "autosize": true, "symbol": "BINANCE:BTCUSDT", "interval": tf,
-                "theme": "dark", "container_id": "tv-chart", "style": "1",
-                "hide_side_toolbar": false, "backgroundColor": "#030406"
-            });
-        }
+        new TradingView.widget({ "autosize": true, "symbol": "BINANCE:BTCUSDT", "interval": "5", "theme": "dark", "container_id": "tv-chart", "style": "1" });
 
-        function changeTF(tf) {
-            currentTF = tf;
-            document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
-            loadChart(tf);
-        }
-
-        async function updateAI() {
+        async function analyze() {
             try {
-                const res = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT');
-                const data = await res.json();
-                const price = parseFloat(data.lastPrice);
-                const change = parseFloat(data.priceChangePercent);
+                const r = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT');
+                const d = await r.json();
+                const p = parseFloat(d.lastPrice);
+                const c = parseFloat(d.priceChangePercent);
 
-                document.getElementById('price').innerText = "$" + price.toLocaleString();
-                
-                const sigBox = document.getElementById('signal-box');
-                const buyContainer = document.getElementById('buy-container');
-                const sellContainer = document.getElementById('sell-container');
-                const levelsBox = document.getElementById('levels-box');
+                document.getElementById('price').innerText = "$" + p.toLocaleString();
 
-                // STRONG QUANTUM LOGIC
-                if (change > 0.40) {
-                    sigBox.innerText = "⚡ STRONG BUY / LONG (" + currentTF + "M)";
-                    sigBox.className = "signal-indicator buy";
-                    buyContainer.style.display = "block";
-                    sellContainer.style.display = "none";
-                    levelsBox.style.display = "grid";
-                    document.getElementById('sl').innerText = (price * 0.996).toFixed(2);
-                    document.getElementById('tp').innerText = (price * 1.015).toFixed(2);
-                } else if (change < -0.40) {
-                    sigBox.innerText = "💀 STRONG SELL / SHORT (" + currentTF + "M)";
-                    sigBox.className = "signal-indicator sell";
-                    sellContainer.style.display = "block";
-                    buyContainer.style.display = "none";
-                    levelsBox.style.display = "grid";
-                    document.getElementById('sl').innerText = (price * 1.004).toFixed(2);
-                    document.getElementById('tp').innerText = (price * 0.985).toFixed(2);
+                const sBox = document.getElementById('signal');
+                const lBox = document.getElementById('lvl-container');
+                const tSize = document.getElementById('trade-size');
+
+                // POSITION SIZING LOGIC: Use only 20% of your wallet
+                let wallet = 100; // Example wallet
+                tSize.innerText = "$" + (wallet * 0.20).toFixed(0);
+
+                // ACCURACY FILTER: Change must be strong (>0.70%)
+                if (c > 0.70) {
+                    sBox.innerText = "🚀 STRONG BUY (20% WALLET)";
+                    sBox.className = "signal-indicator signal-box buy";
+                    lBox.style.display = "grid";
+                    document.getElementById('sl').innerText = (p * 0.992).toFixed(2); // 0.8% Gap for safety
+                    document.getElementById('tp').innerText = (p * 1.020).toFixed(2);
+                } else if (c < -0.70) {
+                    sBox.innerText = "🔻 STRONG SELL (20% WALLET)";
+                    sBox.className = "signal-indicator signal-box sell";
+                    lBox.style.display = "grid";
+                    document.getElementById('sl').innerText = (p * 1.008).toFixed(2);
+                    document.getElementById('tp').innerText = (p * 0.980).toFixed(2);
                 } else {
-                    sigBox.innerText = "⏳ NO STRONG TREND - WAIT";
-                    sigBox.className = "signal-indicator neutral";
-                    buyContainer.style.display = "none";
-                    sellContainer.style.display = "none";
-                    levelsBox.style.display = "none";
+                    sBox.innerText = "⏳ NO TREND (DON'T TRADE)";
+                    sBox.className = "signal-indicator signal-box wait";
+                    lBox.style.display = "none";
                 }
-            } catch (e) { }
+            } catch (e) {}
         }
-
-        setInterval(updateAI, 2000);
-        updateAI();
-        loadChart('5');
+        setInterval(analyze, 3000); analyze();
     </script>
 </body>
 </html>
